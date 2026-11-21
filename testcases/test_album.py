@@ -189,3 +189,41 @@ class TestAlbumApi:
         a2.eq(again["code"], 400, "重复删除返回400")
         a2.contains(again["msg"], "不存在", "错误提示")
         a2.finish()
+
+    @allure.story("排序值边界与列表升序")
+    def test_list_sort_boundary(self, client):
+        """sort 取 0 与 100 两端，列表按 sort 升序排列"""
+        album = AlbumApi(client)
+        album.create_folder("排序最小相册", sort=0)
+        max_sort = album.create_folder("排序最大相册", sort=100).json()["data"]
+
+        body = album.list_folders().json()
+
+        a = AssertHandler()
+        a.eq(body["code"], 200, "业务码")
+        sorts = [f["sort"] for f in body["data"]["list"]]
+        a.eq(sorts, sorted(sorts), "列表按排序值升序")
+        a.eq(
+            body["data"]["list"][-1]["folder_id"], max_sort["folder_id"], "sort=100 的相册排在最后"
+        )
+        a.finish()
+
+    @allure.story("上传后相册图片数量递增")
+    def test_image_count_after_upload(self, client):
+        """列表里的 image_count 随上传同步变化"""
+        album = AlbumApi(client)
+
+        def count_of(folder_id):
+            return next(
+                f["image_count"]
+                for f in album.list_folders().json()["data"]["list"]
+                if f["folder_id"] == folder_id
+            )
+
+        before = count_of(1001)
+        album.upload(1001, "count_check.jpg")
+        after = count_of(1001)
+
+        a = AssertHandler()
+        a.eq(after, before + 1, "image_count 递增 1")
+        a.finish()

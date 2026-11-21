@@ -4,7 +4,7 @@
 技术栈：Python 3.13 + requests + pytest + PyYAML + Allure + loguru，被测服务用 Flask 起在本地。
 
 被测服务是仓库里的一个 Flask 应用（`mock_server/app.py`），8 个业务接口，带参数校验、权限判断和会话状态。
-测试代码直接请求这个服务，克隆仓库、装好依赖就能跑，不依赖内网环境。当前用例 20 条。
+测试代码直接请求这个服务，克隆仓库、装好依赖就能跑，不依赖内网环境。当前用例 22 条。
 
 ## 环境要求
 
@@ -68,7 +68,7 @@ pytest testcases/test_album.py -k 重命名
 正常输出结尾：
 
 ```
-============================= 20 passed in 0.52s ==============================
+============================= 22 passed in 0.77s ==============================
 ```
 
 服务单独起的时候，先确认它活着：
@@ -176,6 +176,8 @@ pytest
 | `test_list_images` | 1 | 总数一致、刚上传的图片可见 |
 | `test_list_images_folder_not_exist` | 1 | 403 |
 | `test_delete_image` | 1 | 删除成功 + 重复删除 400 |
+| `test_list_sort_boundary` | 1 | sort 取 0 与 100 两端，列表按 sort 升序 |
+| `test_image_count_after_upload` | 1 | 上传后 `image_count` 递增 1 |
 
 ## 新增一条用例
 
